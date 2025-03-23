@@ -1,14 +1,12 @@
 {% extends 'tiwiti/base.html' %}
 
-{% block title %}Home: Tiwiti-Fund Management System{% endblock %}
-
 {% block content %}
-    <h1>Welcome to the Fund Management System</h1>
-    <p>Manage your funds efficiently with our secure platform.</p>
-    
-    <ul>
-        <li><a href="#">View Transactions</a></li>
-        <li><a href="#">Manage Accounts</a></li>
-        <li><a href="#">Generate Reports</a></li>
-    </ul>
+  <h1>Welcome to the Fund Management System</h1>
+
+  <p>Manage your funds efficiently with our platform.</p>
+
+  <nav>
+    <a href="{% url 'signup' %}">Sign Up</a> |
+    <a href="{% url 'login' %}">Login</a>
+  </nav>
 {% endblock %}

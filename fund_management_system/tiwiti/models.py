@@ -23,11 +23,9 @@ class CustomUserManager(BaseUserManager):
         
         email = self.normalize_email(email)     #Converts the string into all lowercase
         user = self.model(email=email, username=username, **extra_fields)
-
-        if password:
-            user.set_password(password)     #Hashes the user password
+        user.set_password(password)
         
-        user.save(using=self._db)   #Saves information to the database
+        user.save()   #Saves information to the database
         return user
 
     """creating a superuser"""
@@ -39,4 +37,12 @@ class CustomUserManager(BaseUserManager):
 
 """The custom user model the base user manager would work on"""
 class CustomUser(AbstractUser):
-     objects = CustomUserManager
+     email = models.EmailField(unique=True)
+     objects = CustomUserManager()
+     
+
+     USERNAME_FIELD ="username" #Users are to log in with username
+     REQUIRED_FIELDS = [email]  #email is required for user creation
+
+     def __str__(self):
+          return self.username
