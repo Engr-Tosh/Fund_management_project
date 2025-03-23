@@ -1,0 +1,10 @@
+{% extends 'tiwiti/base.html' %}
+
+{% block title %}Logout Successful{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>You have been logged out</h2>
+        <p><a href="{% url 'login' %}">Log in again</a></p>
+    </div>
+{% endblock %}

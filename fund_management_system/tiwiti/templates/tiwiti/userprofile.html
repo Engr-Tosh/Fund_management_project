@@ -1,0 +1,17 @@
+{% extends 'tiwiti/base.html' %}
+
+{% block content %}
+  <h2>Profile</h2>
+
+  <p><strong>Username:</strong> {{ user.username }}</p>
+  <p><strong>Email:</strong> {{ user.email }}</p>
+
+  <h3>Update Email</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Update Email</button>
+  </form>
+
+  <a href="{% url 'logout' %}">Logout</a>
+{% endblock %}

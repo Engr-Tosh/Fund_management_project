@@ -51,6 +51,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'tiwitifunds.urls'
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / "tiwiti/static"
+]
 
 TEMPLATES = [
     {
@@ -126,3 +131,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+AUTH_USER_MODEL = "tiwiti.CustomUser"
