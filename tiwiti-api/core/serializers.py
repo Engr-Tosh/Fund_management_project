@@ -24,7 +24,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(
             username = validated_data["username"],
-            email = validated_data["email"],
+            email = validated_data("email"),
+            phone = validated_data("phone"),
             password = validated_data["password"],
         )
         token = Token.objects.create(user=user)
@@ -49,5 +50,5 @@ class UserLoginSerializer(serializers.ModelSerializer):
         
         data['user'] = user
         return data
-        # return super().validate(attrs)
+
     
