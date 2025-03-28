@@ -19,10 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('tiwitifundsapi/', include("core.urls")),
+    path('api/tiwitifunds/', include("core.urls")),
     path("tiwitifundsapi-auth/", include("rest_framework.urls"))
 ]
-
-# urlpatterns += [
-#     path('tiwitifundsapi-auth/', include('rest_framework.urls')),
-# ]
