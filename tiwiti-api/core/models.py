@@ -5,7 +5,7 @@ from decimal import Decimal
 
 """The models for my fund management system"""
 # Core functionality models
-class User(AbstractUser):
+class CustomUser(AbstractUser):
     phone = models.CharField(max_length=11, unique=True, blank=True, null=True) 
     created_at = models.DateTimeField(auto_now_add=True)
 
