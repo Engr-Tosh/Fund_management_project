@@ -1,19 +1,10 @@
-from django.shortcuts import render
 from rest_framework import response, generics, status
 from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
     UserSerializer,
-    DepositSerializer,
-    WithdrawalSerializer,
-    BalanceSerializer,
 )
-from .models import (
-    CustomUser,
-    Deposit,
-    Withdrawal,
-    Balance,
-)
+from .models import CustomUser
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import permissions
@@ -51,23 +42,3 @@ class UserLoginView(APIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
-
-# Authenticated Users can make deposits
-class DepositView(generics.ListCreateAPIView):
-    """Users can make deposits"""
-    queryset = Deposit.objects.all()
-    serializer_class = DepositSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-# Authenticated Users can make withdrawals
-class WithdrawalView(generics.ListCreateAPIView):
-    """Users can place withdrawals"""
-    queryset = Withdrawal.objects.all()
-    serializer_class = WithdrawalSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-# Authenticated Users can see their balance:
-class BalanceView(generics.RetrieveAPIView):
-    queryset = Balance.objects.all()
-    serializer_class = BalanceSerializer
-    permission_classes = [permissions.IsAuthenticated]
