@@ -1,4 +1,4 @@
-"""The serializers for my views would go here"""
+"""The serializers for my auth views would go here"""
 from rest_framework import serializers
 from .models import (
     CustomUser,
@@ -56,22 +56,3 @@ class UserLoginSerializer(serializers.ModelSerializer):
         
         data['user'] = user
         return data
-
-"""Implementing main user features serializer"""
-# Deposit Serializer
-class DepositSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Deposit
-        fields = ["amount"]
-
-# Withdrawal Serializer
-class WithdrawalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Withdrawal
-        fields = ["amount"]
-
-# User balance Serializer
-class BalanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Balance
-        fields = ["user", "amount", "updated_at"]
