@@ -4,6 +4,9 @@ from .models import (
     Deposit,
     Withdrawal,
     Balance,
+    TotalBalance,
+    PersonalUsage,
+    TransactionLog
 )
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.authtoken.models import Token
@@ -28,3 +31,41 @@ class BalanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Balance
         fields = ["user", "amount", "updated_at"]
+
+# Total Balance Serializer for the admin
+class TotalBalanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TotalBalance
+        fields = [
+            "total_deposits",
+            "total_withdrawals",
+            "displayed_total_balance",
+            "personal_usage",
+            "admin_total_balance",
+            "updatd_at"
+        ]
+
+# Personal Usage Serializer
+class PersonalUsageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonalUsage
+        fields = [
+            "type",
+            "amount",
+            "description",
+            "updated_at"
+        ]
+
+# Transaction Log Serializer
+class TransactionLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionLog
+        fields = [
+            "type",
+            "user",
+            "amount",
+            "deposit_transaction",
+            "withdrawal_transaction",
+            "status",
+            "updated_at"
+        ]
