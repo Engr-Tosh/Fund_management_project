@@ -1,7 +1,8 @@
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
-from .models import TransactionLog
+# from .models import TransactionLog
+
 # User Deposit 
 class Deposit(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="deposits")
