@@ -4,11 +4,17 @@ from .serializers import (
     DepositSerializer,
     WithdrawalSerializer,
     BalanceSerializer,
+    TotalBalanceSerializer,
+    PersonalUsageSerializer,
+    TransactionLogSerializer
 )
 from .models import (
     Deposit,
     Withdrawal,
     Balance,
+    TotalBalance,
+    PersonalUsage,
+    TransactionLog 
 )
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
@@ -33,4 +39,21 @@ class WithdrawalView(generics.ListCreateAPIView):
 class BalanceView(generics.RetrieveAPIView):
     queryset = Balance.objects.all()
     serializer_class = BalanceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+"""Admin-View of Balances"""
+# Total Balance
+class TotalBalanceView(generics.RetrieveAPIView):
+    queryset = TotalBalance
+    serializer_class = TotalBalanceSerializer
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
+
+class PersonalUsageView(generics.RetrieveAPIView):
+    queryset = PersonalUsage
+    serializer_class = PersonalUsageSerializer
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
+
+class TransactionLogView(generics.RetrieveAPIView):
+    queryset = TransactionLog
+    serializer_class = TransactionLogSerializer
     permission_classes = [permissions.IsAuthenticated]
