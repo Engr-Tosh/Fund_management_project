@@ -1,11 +1,5 @@
 """The serializers for my auth views would go here"""
 from rest_framework import serializers
-from .models import (
-    CustomUser,
-    Deposit,
-    Withdrawal,
-    Balance,
-)
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.authtoken.models import Token
 

@@ -21,5 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/tiwitifunds/', include("core.urls")),
     path('api/tiwitifunds/', include("transactions.urls")),
-    path("tiwitifundsapi-auth/", include("rest_framework.urls"))
+    # path("tiwitifundsapi-auth/", include("rest_framework.urls"))
 ]
