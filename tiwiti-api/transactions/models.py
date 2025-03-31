@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from decimal import Decimal
-# from .models import TransactionLog
+from django.core.exceptions import ValidationError
 
 # User Deposit 
 class Deposit(models.Model):
@@ -16,10 +16,10 @@ class Deposit(models.Model):
     # When a deposit is made it has to affect the balance
     def save(self, *args, **kwargs):
         """Update user balance on deposit"""
-        super().save(*args, **kwargs)
         balance, _= Balance.objects.get_or_create(user=self.user)
-        balance.amount = self.amount
+        balance.amount += self.amount
         balance.save()
+        super().save(*args, **kwargs)
 
         #It also has to update the transaction log
         TransactionLog.objects.create(
@@ -56,7 +56,7 @@ class Withdrawal(models.Model):
             )
 
         else:
-            raise ValueError("Insufficient balance")  
+            raise ValidationError("Insufficient balance")  
 
     def __repr__(self):
         return f"Withdrawal(user={self.user}, amount={self.amount})"

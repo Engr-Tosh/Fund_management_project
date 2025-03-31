@@ -128,3 +128,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "core.CustomUser"
+
+REST_FRAMEWORK = [
+    {
+    "DEFAULT_PAGINATION_CLASSES": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
+    }
+]
