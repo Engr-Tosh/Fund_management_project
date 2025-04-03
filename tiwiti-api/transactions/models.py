@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from decimal import Decimal
 from django.core.exceptions import ValidationError
@@ -40,23 +40,24 @@ class Withdrawal(models.Model):
     # when a withdrawal is made it also has to affect the balance
     def save(self, *args, **kwargs):
         """Update user balance on withdrawal"""
-        balance = Balance.objects.filter(user=self.user).first()
-        if balance and balance.amount >= self.amount:
-            balance.amount -= self.amount
-            balance.save()
-            super().save(*args, **kwargs)
+        with transaction.atomic():            
+            balance = Balance.objects.filter(user=self.user).first()
+            if balance and balance.amount >= self.amount:
+                balance.amount -= self.amount
+                balance.save()
+                super().save(*args, **kwargs)
 
-            # Transaction Log also needs to be updated
-            TransactionLog.objects.create(
-                type = "withdrawal",
-                user = self.user,
-                amount = self.amount,
-                withdrawal_transaction = self,
-                status = "successful"
-            )
+                # Transaction Log also needs to be updated
+                TransactionLog.objects.create(
+                    type = "withdrawal",
+                    user = self.user,
+                    amount = self.amount,
+                    withdrawal_transaction = self,
+                    status = "successful"
+                )
 
-        else:
-            raise ValidationError("Insufficient balance")  
+            else:
+                raise ValidationError("Insufficient balance")  
 
     def __repr__(self):
         return f"Withdrawal(user={self.user}, amount={self.amount})"

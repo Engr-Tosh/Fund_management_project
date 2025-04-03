@@ -28,6 +28,9 @@ class DepositAPIView(generics.ListCreateAPIView):
     # Ensure authenticated users can only get his/her own info/make deposit to his or her account
     def get_queryset(self):
         return Deposit.objects.select_related("user").filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 # Authenticated Users can make withdrawals
 class WithdrawalAPIView(generics.ListCreateAPIView):
@@ -39,6 +42,9 @@ class WithdrawalAPIView(generics.ListCreateAPIView):
     # Ensure authenticated users can only get his/her own info/make withdrawal from his or her account
     def get_queryset(self):
         return Withdrawal.objects.select_related("user").filter(user=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     
 
