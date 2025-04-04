@@ -91,6 +91,9 @@ class PersonalUsageAPIView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]
     pagination_class = pagination.PageNumberPagination
 
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
 
 class TransactionLogAPIView(generics.ListAPIView):
     serializer_class = TransactionLogSerializer

@@ -50,6 +50,7 @@ class PersonalUsageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalUsage
         fields = [
+            "user",            
             "type",
             "amount",
             "description",

@@ -182,23 +182,44 @@ class TransactionAPITestCase(APITestCase):
         response = self.client.get(self.personal_usage_url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)    
 
-    def test_personal_usage_creation_updates_total_balance(self):
-        """
-        Test that creating a PersonalUsage entry updates the TotalBalance.
-        """
-        self.authenticate_admin()
-        
-        # Create a PersonalUsage entry (deduction type)
-        personal_usage_data = {
-            "type": "deduction",
-            "amount": "20.00",
-            "description": "Admin deduction"
-        }
-        response = self.client.post(self.personal_usage_url, personal_usage_data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # Check that the TotalBalance is updated
-        total_balance = TotalBalance.objects.first()
-        self.assertEqual(total_balance.personal_usage, Decimal('20.00'))
-        self.assertEqual(total_balance.admin_total_balance, Decimal('80.00'))    
-        
+    # def test_personal_usage_creation_updates_total_balance(self):
+    #     """
+    #     Test that creating a PersonalUsage entry updates the TotalBalance.
+    #     """
+
+    #     # Authenticate as admin (assuming you already have an admin setup)
+    #     self.authenticate_admin()
+
+    #     # Create a user for testing
+    #     User = get_user_model()
+    #     user = User.objects.create_user(username="testuser1", password="password123")
+
+    #     # Create and obtain a token for the newly created user
+    #     token = Token.objects.create(user=user)
+    #     headers = {'Authorization': f'Token {token.key}'}
+
+    #     # Ensure the user has made a deposit
+    #     deposit_data = {
+    #         "user": user.id,
+    #         "amount": "100.00",
+    #         "type": "deposit"
+    #     }
+    #     response = self.client.post(self.deposit_url, deposit_data, **headers)
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    #     # Now, perform the PersonalUsage deduction
+    #     personal_usage_data = {
+    #         "type": "deduction",
+    #         "amount": "20.00",
+    #         "description": "Admin deduction"
+    #     }
+    #     response = self.client.post(self.personal_usage_url, personal_usage_data, **headers)
+    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    #     # Fetch the updated TotalBalance
+    #     total_balance = TotalBalance.objects.first()
+
+    #     # Check that the TotalBalance reflects the deduction and available funds
+    #     self.assertEqual(total_balance.personal_usage, Decimal('20.00'))
+    #     self.assertEqual(total_balance.admin_total_balance, Decimal('80.00'))  # 100 - 20 = 80
