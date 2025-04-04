@@ -54,10 +54,7 @@ class Withdrawal(models.Model):
                     amount = self.amount,
                     withdrawal_transaction = self,
                     status = "successful"
-                )
-
-            else:
-                raise ValidationError("Insufficient balance")  
+                ) 
 
     def __repr__(self):
         return f"Withdrawal(user={self.user}, amount={self.amount})"
