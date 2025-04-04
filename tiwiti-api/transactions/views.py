@@ -16,7 +16,7 @@ from .models import (
     TransactionLog 
 )
 from rest_framework import permissions
-
+from rest_framework.exceptions import ValidationError
 
 # Authenticated Users can make deposits
 class DepositAPIView(generics.ListCreateAPIView):
@@ -44,7 +44,19 @@ class WithdrawalAPIView(generics.ListCreateAPIView):
         return Withdrawal.objects.select_related("user").filter(user=self.request.user)
     
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        user = self.request.user
+        amount = serializer.validated_data.get("amount")
+
+        try:
+            user_balance = Balance.objects.get(user=user)
+
+        except Balance.DoesNotExist:
+            raise ValidationError({"Message": "No Balance Record found for this user"})
+
+        if amount > user_balance.amount:
+            raise ValidationError({"Message": "Insufficient Balance"})
+
+        serializer.save(user=user)
 
     
 
@@ -73,7 +85,7 @@ class TotalBalanceAPIView(generics.RetrieveAPIView):
     def get_object(self):
         return TotalBalance.objects.order_by("-updated_at").first() or TotalBalance()
 
-class PersonalUsageAPIView(generics.ListAPIView):
+class PersonalUsageAPIView(generics.ListCreateAPIView):
     queryset = PersonalUsage.objects.order_by("-updated_at").all()
     serializer_class = PersonalUsageSerializer
     permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]

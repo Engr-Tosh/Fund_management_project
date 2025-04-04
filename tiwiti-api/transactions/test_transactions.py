@@ -8,6 +8,8 @@ from .models import (
     Withdrawal,
     Balance,
     TransactionLog,
+    TotalBalance,
+    PersonalUsage
 )
 from decimal import Decimal
 
@@ -113,9 +115,90 @@ class TransactionAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # # Ensure balance remains unchanged
-        # self.balance.refresh_from_db()
-        # self.assertEqual(self.balance.amount, Decimal("100.00"))
+        # Ensure balance remains unchanged
+        self.balance.refresh_from_db()
+        self.assertEqual(self.balance.amount, Decimal("100.00"))
 
-        # # Ensure no transaction log was created
-        # self.assertEqual(TransactionLog.objects.count(), 0)
+        # Ensure no transaction log was created
+        self.assertEqual(TransactionLog.objects.count(), 0)
+
+
+    def test_user_can_view_balance(self):
+        """
+        Test that an authenticated user can retrieve their current balance.
+        """
+        self.authenticate_user()
+        response = self.client.get(self.balance_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["amount"], "100.00")
+
+    
+    def test_user_can_view_transaction_log(self):
+        """
+        Test that an authenticated user can retrieve their own transaction history.
+        """
+        self.authenticate_user()
+
+        # Creating a transaction log entry
+        Deposit.objects.create(user=self.user, amount=Decimal("50.00"))
+
+        response = self.client.get(self.transaction_log_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data["results"]), 1)
+
+    
+    def test_admin_can_view_total_balance(self):
+        """
+        Test that only an admin can access the total balance API.
+        """
+        self.authenticate_user()
+        response = self.client.get(self.total_balance_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_non_admin_cannot_view_total_balance(self):
+        """
+        Test that non-admin can't access the total balance API.
+        """
+        self.authenticate_admin()
+        response = self.client.get(self.total_balance_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_admin_can_view_personal_usage(self):
+        """
+        Test that only an admin can access the personal usage API.
+        """
+        self.authenticate_admin()
+        response = self.client.get(self.personal_usage_url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_non_admin_cannot_view_personal_usage(self):
+        """
+        Test that a regular users can't access the personal usage API.
+        """
+        self.authenticate_user()
+        response = self.client.get(self.personal_usage_url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)    
+
+    def test_personal_usage_creation_updates_total_balance(self):
+        """
+        Test that creating a PersonalUsage entry updates the TotalBalance.
+        """
+        self.authenticate_admin()
+        
+        # Create a PersonalUsage entry (deduction type)
+        personal_usage_data = {
+            "type": "deduction",
+            "amount": "20.00",
+            "description": "Admin deduction"
+        }
+        response = self.client.post(self.personal_usage_url, personal_usage_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check that the TotalBalance is updated
+        total_balance = TotalBalance.objects.first()
+        self.assertEqual(total_balance.personal_usage, Decimal('20.00'))
+        self.assertEqual(total_balance.admin_total_balance, Decimal('80.00'))    
+        
