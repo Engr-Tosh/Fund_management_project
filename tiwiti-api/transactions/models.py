@@ -17,12 +17,7 @@ class Deposit(models.Model):
     def save(self, *args, **kwargs):
         """Update user balance on deposit"""
         balance, _= Balance.objects.get_or_create(user=self.user)
-        
-        if isinstance(self.amount, float):
-            self.amount = Decimal(str(self.amount))
-        elif isinstance(self.amount, int):
-            self.amount = Decimal(self.amount)
-
+      
         balance.amount += self.amount
         balance.save()
         super().save(*args, **kwargs)
