@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, transaction
 from django.conf import settings
 from decimal import Decimal
 from django.core.exceptions import ValidationError
@@ -10,13 +10,19 @@ class Deposit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __repr__(self):
+    def __str__(self):
         return f"Deposit(user={self.user}, amount={self.amount})"
     
     # When a deposit is made it has to affect the balance
     def save(self, *args, **kwargs):
         """Update user balance on deposit"""
         balance, _= Balance.objects.get_or_create(user=self.user)
+        
+        if isinstance(self.amount, float):
+            self.amount = Decimal(str(self.amount))
+        elif isinstance(self.amount, int):
+            self.amount = Decimal(self.amount)
+
         balance.amount += self.amount
         balance.save()
         super().save(*args, **kwargs)
@@ -40,23 +46,21 @@ class Withdrawal(models.Model):
     # when a withdrawal is made it also has to affect the balance
     def save(self, *args, **kwargs):
         """Update user balance on withdrawal"""
-        balance = Balance.objects.filter(user=self.user).first()
-        if balance and balance.amount >= self.amount:
-            balance.amount -= self.amount
-            balance.save()
-            super().save(*args, **kwargs)
+        with transaction.atomic():            
+            balance = Balance.objects.filter(user=self.user).first()
+            if balance and balance.amount >= self.amount:
+                balance.amount -= self.amount
+                balance.save()
+                super().save(*args, **kwargs)
 
-            # Transaction Log also needs to be updated
-            TransactionLog.objects.create(
-                type = "withdrawal",
-                user = self.user,
-                amount = self.amount,
-                withdrawal_transaction = self,
-                status = "successful"
-            )
-
-        else:
-            raise ValidationError("Insufficient balance")  
+                # Transaction Log also needs to be updated
+                TransactionLog.objects.create(
+                    type = "withdrawal",
+                    user = self.user,
+                    amount = self.amount,
+                    withdrawal_transaction = self,
+                    status = "successful"
+                ) 
 
     def __repr__(self):
         return f"Withdrawal(user={self.user}, amount={self.amount})"
@@ -91,21 +95,33 @@ class TotalBalance(models.Model):
         total_refunds = PersonalUsage.objects.filter(type='refund').aggregate(models.Sum('amount'))['amount__sum'] or Decimal('0.00')
         personal_usage = total_deductions - total_refunds
         
+        # Fetch total deposits and withdrawals from the system
+        total_deposits = TransactionLog.objects.filter(type='deposit').aggregate(models.Sum('amount'))['amount__sum'] or Decimal('0.00')
+        total_withdrawals = TransactionLog.objects.filter(type='withdrawal').aggregate(models.Sum('amount'))['amount__sum'] or Decimal('0.00')
+        
+        # Ensure there's enough available balance before making deductions
+        if total_deposits <= personal_usage:
+            raise ValueError("Insufficient funds for deduction.")
+            
         # Get the latest balance if it exists
         total_balance = cls.objects.order_by('-updated_at').first()
 
         if not total_balance:
             # Create a new TotalBalance if none exists
             total_balance = cls.objects.create(
+                total_deposits=total_deposits,
+                total_withdrawals = total_withdrawals,
                 personal_usage=personal_usage,
                 displayed_total_balance=Decimal('0.00'),
                 admin_total_balance=Decimal('0.00')
             )
 
         if total_balance:
+            total_balance.total_deposits = total_deposits
+            total_balance.total_withdrawals = total_withdrawals
             total_balance.personal_usage = personal_usage
             total_balance.displayed_total_balance = total_balance.total_deposits - total_balance.total_withdrawals
-            total_balance.admin_total_balance = total_balance.total_deposits - total_balance.total_withdrawals - personal_usage
+            total_balance.admin_total_balance = Decimal(total_balance.total_deposits) - Decimal(total_balance.total_withdrawals) - personal_usage
             total_balance.save()
         
 # Personal Usage 
@@ -119,7 +135,7 @@ class PersonalUsage(models.Model):
         ('deduction', 'Deduction'),
         ('refund', 'Refund'),
     ]
-
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="personal_usage")
     type = models.CharField(max_length=10, choices=USAGE_TYPE, default='deduction')
     amount = models.DecimalField(max_digits=20, decimal_places=2)
     description = models.TextField(blank=True, null=True)

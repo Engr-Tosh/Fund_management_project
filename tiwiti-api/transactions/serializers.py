@@ -42,7 +42,7 @@ class TotalBalanceSerializer(serializers.ModelSerializer):
             "displayed_total_balance",
             "personal_usage",
             "admin_total_balance",
-            "updatd_at"
+            "updated_at"
         ]
 
 # Personal Usage Serializer
@@ -50,6 +50,7 @@ class PersonalUsageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PersonalUsage
         fields = [
+            "user",            
             "type",
             "amount",
             "description",
