@@ -8,7 +8,10 @@ from .models import CustomUser
 from rest_framework.authtoken.models import Token
 from rest_framework.views import APIView
 from rest_framework import permissions
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
+
+
+User = get_user_model()
 
 """Authentication Setup"""
 # User registration api
@@ -40,5 +43,9 @@ class UserLoginView(APIView):
 
 # User profile view to ensure only token authenticated users view and update their profiles
 class UserProfileView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user

@@ -67,7 +67,7 @@ class BalanceAPIView(generics.RetrieveAPIView):
     serializer_class = BalanceSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    # Ensure authenticated users can only get his/her own info/make withdrawal from his or her account
+    
     # Display the most recent balance(a single instance)
     def get_object(self):
         return self.queryset.get(user=self.request.user)
