@@ -10,14 +10,19 @@ class Deposit(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __repr__(self):
+    def __str__(self):
         return f"Deposit(user={self.user}, amount={self.amount})"
     
     # When a deposit is made it has to affect the balance
     def save(self, *args, **kwargs):
         """Update user balance on deposit"""
         balance, _= Balance.objects.get_or_create(user=self.user)
-      
+        
+        if isinstance(self.amount, float):
+            self.amount = Decimal(str(self.amount))
+        elif isinstance(self.amount, int):
+            self.amount = Decimal(self.amount)
+
         balance.amount += self.amount
         balance.save()
         super().save(*args, **kwargs)

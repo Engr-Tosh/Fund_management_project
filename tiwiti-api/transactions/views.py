@@ -103,3 +103,6 @@ class TransactionLogAPIView(generics.ListAPIView):
     # Ensure authenticated users can only get his/her own transaction info from his or her account
     def get_queryset(self):
         return TransactionLog.objects.select_related("user").prefetch_related("deposit_transaction", "withdrawal_transaction").filter(user=self.request.user)
+    
+    # def get_object(self):
+    #     return self.request.user
