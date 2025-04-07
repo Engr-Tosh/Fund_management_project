@@ -33,7 +33,7 @@ Ensure you have the following installed:
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/Engr-Tosh/django_capstone_project/tiwiti-api.git
+git clone https://github.com/Engr-Tosh/Fund_management_project/tiwiti-api.git
 cd tiwiti-api
 ```
 
@@ -55,20 +55,18 @@ python manage.py runserver
 
 | Method | Endpoint            | Description       |
 | ------ | ------------------- | ----------------- |
-| POST   | /api/auth/register/ | User Registration |
-| POST   | /api/auth/login/    | User Login        |
-| GET    | /api/auth/profile/  | User Profile      |
+| POST   | /api/tiwitifunds/register/ | User Registration |
+| POST   | /api/tiwitifunds/login/    | User Login        |
+| GET/PATCH    | /api/tiwiti/profile/  | User Profile      |
 
 ### Transactions
 
 | Method | Endpoint       | Description           |
 | ------ | -------------- | --------------------- |
-| POST   | /api/deposit/  | Make a Deposit        |
-| POST   | /api/withdraw/ | Request a Withdrawal  |
-| GET    | /api/balance/  | Retrieve User Balance |
+| POST   | /api/tiwitifunds/deposit/  | Make a Deposit        |
+| POST   | /api/tiwitifunds/withdraw/ | Request a Withdrawal  |
+| GET    | /api/tiwitifunds/balance/  | Retrieve User Balance |
 
-|   |   |
-| - | - |
 
 ## Project Structure
 
@@ -84,6 +82,7 @@ tiwiti-api/
 |   |-- models.py  # Deposit, Withdrawal, Balance models
 |   |-- serializers.py  # Transaction serializers
 |   |-- views.py  # Transaction views
+    |-- test_transactions.py # API tests
 |   |-- urls.py  # Transaction routes
 |
 |-- tiwiti_api/
